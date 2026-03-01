@@ -10,7 +10,7 @@ CREATE TABLE users
     password text NOT NULL,
     role VARCHAR(50) NOT NULL DEFAULT 'user',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    update_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMPTZ NULL,
     public_id UUID NOT NULL DEFAULT gen_random_uuid(),
     CONSTRAINT user_public_id_unique UNIQUE(public_id)

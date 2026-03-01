@@ -1,6 +1,6 @@
 package utils
 
-import "github.com/gofiber/fiber"
+import "github.com/gofiber/fiber/v2"
 
 type Response struct {
 	Status       string      `json:"status"`
@@ -38,7 +38,7 @@ func BadRequest(ctx *fiber.Ctx, message string, data interface{}, err string) er
 	})
 }
 
-func NotFound(ctx *fiber.Ctx, message string, data interface{}, err string) NotFound {
+func NotFound(ctx *fiber.Ctx, message string, data interface{}, err string) error {
 	return ctx.Status(fiber.StatusNotFound).JSON(Response{
 		Status: "Error not found",
 		ResponseCode: fiber.StatusNotFound,
