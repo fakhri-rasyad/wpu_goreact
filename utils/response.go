@@ -38,6 +38,16 @@ func BadRequest(ctx *fiber.Ctx, message string, data interface{}, err string) er
 	})
 }
 
+func UnauthorizedRequest(ctx *fiber.Ctx, message string, data interface{}, err string) error {
+	return ctx.Status(fiber.StatusUnauthorized).JSON(Response{
+		Status: "Error unauthorized",
+		ResponseCode: fiber.StatusUnauthorized,
+		Message: message,
+		Data: data,
+		Error: err,
+	})
+}
+
 func NotFound(ctx *fiber.Ctx, message string, data interface{}, err string) error {
 	return ctx.Status(fiber.StatusNotFound).JSON(Response{
 		Status: "Error not found",

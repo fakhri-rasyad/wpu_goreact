@@ -30,3 +30,31 @@ func (c *UserController) Register(ctx *fiber.Ctx) error {
 	_ = copier.Copy(&userResponse, &user)
 	return utils.Success(ctx, "Register Success", userResponse)
 }
+
+func (c *UserController) Login(ctx *fiber.Ctx) error {
+	var body struct{
+		Email string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := ctx.BodyParser(&body); err != nil {
+		return utils.BadRequest(ctx, "Gagal parsing data", nil, err.Error())
+	}
+
+	user , err := c.service.Login(body.Email, body.Password)
+
+	if err != nil {
+		return utils.UnauthorizedRequest(ctx, "Login gagal", nil, err.Error())
+	}
+
+	token, err := utils.GenerateJWTToken(user.InternalID, user.Role, user.Email, user.PublicID)
+	refreshToken, err := utils.RefreshJWTToken(user.InternalID)
+	var userResponse models.UserResponse
+	_ = copier.Copy(&userResponse, &user)
+	
+	return utils.Success(ctx, "Login Success", fiber.Map{
+		"access_token" : token,
+		"refresh_token" : refreshToken,
+		"user" : userResponse,
+	})
+}

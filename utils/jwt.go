@@ -19,6 +19,12 @@ func GenerateJWTToken(userID int64, role , email string, publicID uuid.UUID) (st
 	return token.SignedString([]byte(secret))
 }
 
-func RefreshJWTToken(){
+func RefreshJWTToken(userID int64) (string, error) {
+	secret := config.APPConfig.JWTSecret
+	duration, _ := time.ParseDuration(config.APPConfig.JWTRefreshToken)
 
+	claims := jwt.MapClaims{"user_id" : userID, "exp" : time.Now().Add(duration).Unix()}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(secret))
 }
