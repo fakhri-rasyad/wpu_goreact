@@ -12,6 +12,8 @@ import (
 type UserService interface {
 	Register(user *models.User) error
 	Login(email, password string) (*models.User, error)
+	GetById(id uint)(*models.User, error)
+	GetByPublicId(uuid string)(*models.User, error)
 }
 
 type userServiceImpl struct {
@@ -48,7 +50,13 @@ func (s *userServiceImpl) Login(email, password string) (*models.User, error){
 	if !utils.CheckPasswordHash(password, user.Password){
 		return nil, errors.New("Invalid Password")
 	}
-
 	return user, nil
+}
 
+func (s *userServiceImpl) GetById(id uint)(*models.User, error){
+	return s.repo.FindByID(id)
+}
+
+func (s *userServiceImpl) GetByPublicId(uuid string)(*models.User, error){
+	return s.repo.FindByPublicID(uuid)
 }

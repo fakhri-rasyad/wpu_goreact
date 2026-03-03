@@ -51,10 +51,27 @@ func (c *UserController) Login(ctx *fiber.Ctx) error {
 	refreshToken, err := utils.RefreshJWTToken(user.InternalID)
 	var userResponse models.UserResponse
 	_ = copier.Copy(&userResponse, &user)
-	
+
 	return utils.Success(ctx, "Login Success", fiber.Map{
 		"access_token" : token,
 		"refresh_token" : refreshToken,
 		"user" : userResponse,
 	})
+}
+
+func (c *UserController) GetUser(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	user, err := c.service.GetByPublicId(id)
+	if err != nil {
+		return utils.NotFound(ctx, "Data not found", nil, err.Error())
+	}
+
+	var userResp models.UserResponse
+	err = copier.Copy(&userResp, &user)
+
+	if err != nil {
+		return utils.BadRequest(ctx, "Internal Server Error", nil, err.Error())
+	}
+
+	return utils.Success(ctx, "Request Success", userResp)
 }
