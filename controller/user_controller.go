@@ -144,3 +144,15 @@ func (c *UserController) UpdateUser(ctx *fiber.Ctx) error {
 	}
 	return utils.Success(ctx, "Success", userPublic)
 }
+
+func (c *UserController) DeleteUser(ctx *fiber.Ctx) error {
+	id, _ := strconv.Atoi(ctx.Params("id"))
+
+	err:= c.service.Delete(uint(id))
+
+	if err != nil {
+		return utils.BadRequest(ctx, "Invalid id format", nil, err.Error())
+	}
+
+	return utils.Success(ctx, "Success", id)
+}
