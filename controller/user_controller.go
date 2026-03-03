@@ -8,6 +8,7 @@ import (
 	"github.com/fakhri-rasyad/wpu_goreact/services"
 	"github.com/fakhri-rasyad/wpu_goreact/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 )
 
@@ -110,4 +111,36 @@ func (c *UserController) GetUserPagination(ctx *fiber.Ctx) error {
 	}
 
 	return utils.PaginationSuccess(ctx, "Success", userResp, meta)
+}
+
+func (c *UserController) UpdateUser(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	public_id, err := uuid.Parse(id)
+
+	if err != nil {
+		return utils.BadRequest(ctx, "Invalid id format", nil, err.Error())
+	}
+
+	var user models.User
+	if err := ctx.BodyParser(&user) ; err != nil {
+		return utils.BadRequest(ctx, "Gagal parsing data", nil, err.Error())
+	}
+
+	user.PublicID = public_id
+
+	err = c.service.Update(&user)
+	if err != nil {
+		return utils.BadRequest(ctx, "Gagal mengupdate data", nil, err.Error())
+	}
+	userUpdated, err := c.service.GetByPublicId(id)
+	if err != nil {
+		return utils.InternalServerError(ctx, "Gagal mengambil data", nil, err.Error())
+	}
+
+	var userPublic models.UserResponse
+	err = copier.Copy(&userPublic, &userUpdated)
+	if err != nil {
+		return utils.InternalServerError(ctx, "Gagal mengambil data", nil, err.Error())
+	}
+	return utils.Success(ctx, "Success", userPublic)
 }

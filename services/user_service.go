@@ -15,6 +15,7 @@ type UserService interface {
 	GetById(id uint)(*models.User, error)
 	GetByPublicId(uuid string)(*models.User, error)
 	FindAllPagination(filter, sort string, limit, offset int) ([]models.User, int64, error)
+	Update(user *models.User) error
 }
 
 type userServiceImpl struct {
@@ -64,4 +65,8 @@ func (s *userServiceImpl) GetByPublicId(uuid string)(*models.User, error){
 
 func (s *userServiceImpl) FindAllPagination(filter, sort string, limit, offset int) ([]models.User, int64, error){
 	return s.repo.FindAllPagination(filter, sort, limit, offset)
+}
+
+func (s *userServiceImpl) Update(user *models.User) error {
+	return s.repo.UpdateUser(user)
 }

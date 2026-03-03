@@ -56,6 +56,16 @@ func BadRequest(ctx *fiber.Ctx, message string, data interface{}, err string) er
 	})
 }
 
+func InternalServerError(ctx *fiber.Ctx, message string, data interface{}, err string) error {
+	return ctx.Status(fiber.StatusInternalServerError).JSON(Response{
+		Status: "Internal server error",
+		ResponseCode: fiber.StatusInternalServerError,
+		Message: message,
+		Data: data,
+		Error: err,
+	})
+}
+
 func UnauthorizedRequest(ctx *fiber.Ctx, message string, data interface{}, err string) error {
 	return ctx.Status(fiber.StatusUnauthorized).JSON(Response{
 		Status: "Error unauthorized",
