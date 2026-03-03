@@ -11,9 +11,11 @@ require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/gofiber/fiber/v2 v2.52.12 // indirect
+	github.com/gofiber/jwt/v3 v3.3.10 // indirect
 	github.com/gofiber/schema v1.7.0 // indirect
 	github.com/gofiber/utils v1.2.0 // indirect
 	github.com/gofiber/utils/v2 v2.0.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/gorilla/schema v1.4.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
