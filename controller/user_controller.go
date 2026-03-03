@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"math"
+	"strconv"
+
 	"github.com/fakhri-rasyad/wpu_goreact/models"
 	"github.com/fakhri-rasyad/wpu_goreact/services"
 	"github.com/fakhri-rasyad/wpu_goreact/utils"
@@ -74,4 +77,37 @@ func (c *UserController) GetUser(ctx *fiber.Ctx) error {
 	}
 
 	return utils.Success(ctx, "Request Success", userResp)
+}
+
+func (c *UserController) GetUserPagination(ctx *fiber.Ctx) error {
+	page, _ := strconv.Atoi(ctx.Query("page", "1"))
+	limit, _ := strconv.Atoi(ctx.Query("limit", "10"))
+	offset := (page - 1) * limit
+
+	filter := ctx.Query("filter", "")
+	sort := ctx.Query("filter", "")
+
+	users, total, err := c.service.FindAllPagination(filter, sort, limit, offset)
+
+	if err  != nil {
+		return utils.BadRequest(ctx, "Gagal mengambil data", nil, err.Error())
+	}
+
+	var userResp []models.UserResponse
+	_ = copier.Copy(&userResp, &users)
+
+	meta := utils.PaginationMeta{
+		Page: page,
+		Limit: limit,
+		Total: int(total),
+		TotalPage: int(math.Ceil(float64(total) / float64(limit))),
+		Filter: filter,
+		Sort: sort,
+	}
+
+	if total == 0 {
+		return utils.PaginationNotFound(ctx, "Data pengguna tidak ditemukan", userResp, meta)
+	}
+
+	return utils.PaginationSuccess(ctx, "Success", userResp, meta)
 }

@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"strings"
+
 	"github.com/fakhri-rasyad/wpu_goreact/config"
 	"github.com/fakhri-rasyad/wpu_goreact/models"
 )
@@ -10,6 +12,7 @@ type UserRepository interface {
 	FindByEmail(email string) (*models.User, error)
 	FindByID(id uint)(*models.User, error)
 	FindByPublicID(uuid string)(*models.User, error)
+	FindAllPagination(filter, sort string, limit, offset int) ([]models.User, int64, error)
 }
 
 type userRepositoryImpl struct {}
@@ -38,4 +41,40 @@ func (r * userRepositoryImpl) FindByPublicID(uuid string)(*models.User, error){
 	var user models.User
 	err := config.DB.Where("public_id = ?", uuid).First(&user).Error
 	return &user, err
+}
+
+func (r *userRepositoryImpl) FindAllPagination(filter, sort string, limit, offset int) ([]models.User, int64, error){
+	var users []models.User
+	var total int64
+
+	db := config.DB.Model(&models.User{})
+	if filter != ""{
+		filterPattern := "%" + filter + "%"
+		db.Where("name Ilike ? OR email Ilike ?", filterPattern, filterPattern)
+	}
+
+	if err := db.Count(&total).Error; err != nil {
+		return nil,0,err
+	}
+
+	if sort != ""{
+		switch sort {
+case "-id":
+			sort = "-internal_id"
+		case "id":
+			sort = "internal_id"
+		}
+
+		if after, ok :=strings.CutPrefix(sort, "-"); ok {
+			sort = after + " DESC"
+		} else {
+			sort = sort + " ASC"
+		}
+	}
+
+	db = db.Order(sort)
+
+	err := db.Limit(limit).Offset(offset).Find(&users).Error
+
+	return users, total, err
 }
