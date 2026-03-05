@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/fakhri-rasyad/wpu_goreact/config"
 	"github.com/fakhri-rasyad/wpu_goreact/models"
 )
@@ -9,6 +11,7 @@ type BoardRepository interface {
 	Create(board *models.Board) error 
 	Update(board *models.Board) error
 	FindByPublicID(uuid string) (*models.Board, error)
+	AddMember(boardId uint, userIDs []uint ) error
 }
 
 type BoardRepositoryImpl struct {
@@ -34,4 +37,21 @@ func (r *BoardRepositoryImpl) FindByPublicID(uuid string) (*models.Board, error)
 	var board models.Board
 	err := config.DB.Model(&models.Board{}).Where("public_id = ?", uuid).First(&board).Error
 	return &board, err
+}
+
+func (r *BoardRepositoryImpl) AddMember(boardId uint, userIDs []uint ) error{
+	if len(userIDs) == 0 {
+		return nil
+	}
+
+	now := time.Now()
+	var members []models.BoardMember
+	for _, userId := range userIDs {
+		members = append(members, models.BoardMember{
+			BoardID: int64(boardId),
+			UserID: int64(userId),
+			JoinedAt: now,
+		})
+	}
+	return config.DB.Create(&members).Error
 }
