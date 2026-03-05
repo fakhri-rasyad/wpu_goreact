@@ -22,7 +22,7 @@ func NewUserController(s services.UserService) *UserController{
 
 func (c *UserController) Register(ctx *fiber.Ctx) error {
 	user := new(models.User)
-	if err := ctx.BodyParser(user); err != nil{
+	if err := ctx.BodyParser(&user); err != nil{
 		return utils.BadRequest(ctx, "Gagal parsing data",nil, err.Error())
 	}
 

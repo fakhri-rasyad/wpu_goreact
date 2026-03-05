@@ -28,3 +28,21 @@ func RefreshJWTToken(userID int64) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(secret))
 }
+
+func ExtractClaims(JWTtoken string)(jwt.MapClaims, bool){
+	secret := config.APPConfig.JWTSecret
+	hmac := []byte(secret)
+	token, err := jwt.Parse(JWTtoken, func(t *jwt.Token) (any, error) {
+		return hmac, nil
+	})
+
+	if err != nil {
+		return nil, false
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid{
+		return claims, true
+	} else {
+		return nil, false
+	}
+}
