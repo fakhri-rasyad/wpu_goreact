@@ -13,6 +13,8 @@ type BoardService interface{
 	Update(board *models.Board) error
 	GetByID(uuid string) (*models.Board, error)
 	AddMembers(boardPubId string, userPubIds []string) error
+	RemoveMembers(boardPubId string, memberIDs []string) error
+	GetAllUserPaginatreBy (userPubId, filter, sort string, limit, offset int) ([]models.Board, int64, error)
 }
 
 type BoardServiceImpl struct {
@@ -82,4 +84,46 @@ func (s *BoardServiceImpl) AddMembers(boardPubId string, userPubIds []string) er
 	}
 
 	return s.repo.AddMember(uint(board.InternalID), newMembersId)
+}
+
+func (s *BoardServiceImpl) RemoveMembers(boardPubId string, memberIDs []string) error {
+	board, err := s.repo.FindByPublicID(boardPubId)
+
+	if err != nil {
+		return errors.New("Board tidak ditemukan")
+	}
+
+	var memberIntIDs []uint
+	for _, memberPubId := range memberIDs {
+		user, err := s.userRepo.FindByPublicID(memberPubId)
+		if err != nil {
+			return errors.New("User tidak ditemukan" + memberPubId)
+		}
+
+		memberIntIDs = append(memberIntIDs, uint(user.InternalID))
+	}
+
+	existingMembers , err := s.boardmemberRepo.GetMembers(boardPubId)
+	if err != nil {
+		return errors.New("Board tidak memiliki id")
+	}
+
+	memberMap := make(map[uint]bool)
+	for _, member := range existingMembers{
+		memberMap[uint(member.InternalID)] = true
+	}
+
+	var memberToRemove []uint
+	for _, memIntId := range memberIntIDs{
+		if memberMap[memIntId] {
+			memberToRemove = append(memberToRemove, memIntId)
+		}
+	}
+
+	return s.repo.RemoveMembers(uint(board.InternalID), memberToRemove)
+
+}
+
+func (s *BoardServiceImpl) GetAllUserPaginatreBy (userPubId, filter, sort string, limit, offset int) ([]models.Board, int64, error) {
+	return s.repo.FindAllByUserPaginate(userPubId, filter, sort, limit, offset)
 }
