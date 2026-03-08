@@ -67,33 +67,32 @@ func (r *BoardRepositoryImpl) RemoveMembers(boardId uint, userIDs []uint) error{
 }
 
 func (r *BoardRepositoryImpl) FindAllByUserPaginate(userPubId, filter, sort string, limit, offset int) ([]models.Board, int64, error) {
-	var board []models.Board
-	var total int64
+    var boards []models.Board
+    var total int64
 
-	query := config.DB.Model(&models.Board{}).Where("board_public_id = ? OR user_internal_id = ? IN (" + 
-	"SELECT board_members.board_internal_id FROM board_members" +
-	"SELECT board_members.user_internal_id FROM board_members" +
-	"WHERE users.public_id = ?", userPubId, userPubId)
+	query := config.DB.Model(&models.Board{}).
+	    Select("DISTINCT boards.*").
+	    Joins("LEFT JOIN board_members ON board_members.board_internal_id = boards.internal_id").
+	    Joins("LEFT JOIN users ON users.internal_id = board_members.user_internal_id OR users.internal_id = boards.owner_internal_id").
+	    Where("users.public_id = ?", userPubId)
 
-	if filter != "" {
-		query = query.Where("title ILIKE ?", "%" + filter + "%")
-	}
+    if filter != "" {
+        query = query.Where("boards.title ILIKE ?", "%"+filter+"%")
+    }
 
+    if err := query.Count(&total).Error; err != nil {
+        return nil, 0, err
+    }
 
-	if err := query.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
+    if sort != "" {
+        query = query.Order(sort)
+    } else {
+        query = query.Order("boards.created_at DESC")
+    }
 
-	
-	if sort != "" {
-		query = query.Order(sort)
-	} else {
-		query = query.Order("created_at DESC")
-	}
+    if err := query.Limit(limit).Offset(offset).Find(&boards).Error; err != nil {
+        return nil, 0, err
+    }
 
-	if err := query.Limit(limit).Offset(offset).Find(&board).Error; err != nil {
-		return nil, 0, err
-	}
-
-	return board, total, nil
+    return boards, total, nil
 }
