@@ -4,5 +4,5 @@ CREATE TABLE labels
     public_id UUID NOT NULL DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     color VARCHAR(50) NOT NULL,
-    CONSTRAINT labels_public_id_unique UNIQUE(public_id),
+    CONSTRAINT labels_public_id_unique UNIQUE(public_id)
 );

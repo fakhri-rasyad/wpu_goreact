@@ -22,6 +22,7 @@ type Config struct {
 	DBUser string
 	DBPassword string
 	DBName string
+	APPUrl string
 	JWTSecret string
 	JWTExpireMinutes string
 	JWTRefreshToken string
@@ -41,6 +42,7 @@ func LoadEnv() {
 		DBUser: getEnv("DB_USERNAME", "postgres"),
 		DBPassword: getEnv("DB_PASSWORD", "admin"),
 		DBName: getEnv("DB_NAME", "wpu_goreact"),
+		APPUrl: getEnv("APP_URL", "http://localhost:3000"),
 		JWTSecret: getEnv("JWT_SECRET", "supersecret"),
 		JWTExpireMinutes: getEnv("JWT_EXPIRY_MINUTES", "6000"),
 		JWTRefreshToken: getEnv("REFRESH_TOKEN_EXPIRED", "24h"),

@@ -15,6 +15,7 @@ func Setup(app *fiber.App,
 	uc *controller.UserController, 
 	bc *controller.BoardController,
 	lc *controller.ListController,
+	cc *controller.CardController,
 	){
 	err := godotenv.Load()
 	if err != nil {
@@ -51,4 +52,10 @@ func Setup(app *fiber.App,
 	listGroup.Post("/", lc.CreateList)
 	listGroup.Put("/:id", lc.UpdateList)
 	listGroup.Delete("/:id", lc.DeleteList)
+
+	cardGroup := api.Group("/cards")
+	cardGroup.Post("/", cc.CreateCard)
+	cardGroup.Put("/:id", cc.UpdateCard)
+	cardGroup.Delete("/:id", cc.DeleteCard)
+	cardGroup.Get("/:id", cc.GetCardDetail)
 }
